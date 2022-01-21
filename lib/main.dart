@@ -13,6 +13,13 @@ class Vocamatch extends StatelessWidget {
     return MaterialApp(
       title: 'VocaMatch',
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+          // appBarTheme: ThemeData.light(),
+          // primarySwatch: Colors.indigo,
+          colorScheme: ColorScheme.light(
+        primary: Colors.pink,
+        secondary: Colors.indigo,
+      )),
       home: HomePage(),
     );
   }
