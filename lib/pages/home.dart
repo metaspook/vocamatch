@@ -65,139 +65,162 @@ class _HomePageState extends State<HomePage> {
                   .textTheme
                   .headline4!
                   .copyWith(color: Colors.white70))),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-        child: Column(
-          children: [
-            if (!gameOver) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.swipe,
-                    size: 25,
-                  ),
-                  SizedBox(width: 10),
-                  Text('drag and drop' + '\t' * 20 + 'Score: $score',
-                      style: Theme.of(context).textTheme.subtitle1),
-                ],
-              ),
-              Row(
-                children: [
-                  // Spacer(),
-                  Column(
-                    children: items.map((item) {
-                      return Container(
-                        margin: EdgeInsets.all(8),
-                        child: Draggable<ItemModel>(
-                          data: item,
-                          childWhenDragging: CircleAvatar(
-                            backgroundColor: Colors.white,
-                            backgroundImage: AssetImage(item.img),
-                            radius: 50,
-                          ),
-                          feedback: CircleAvatar(
-                            backgroundColor: Colors.white,
-                            backgroundImage: AssetImage(item.img),
-                            radius: 30,
-                          ),
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white,
-                            backgroundImage: AssetImage(item.img),
-                            radius: 30,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  Spacer(flex: 3),
-                  Column(
-                    children: items2.map((item) {
-                      return DragTarget<ItemModel>(
-                        onAccept: (receivedItem) {
-                          if (item.value == receivedItem.value) {
-                            score += 10;
-                            setState(() {
-                              items.remove(receivedItem);
-                              items2.remove(item);
-
-                              if (items.isEmpty && items2.isEmpty) {
-                                initGame();
-                                _showDialog('hello', null, 'gg');
-                              }
-                            });
-                            item.accepting = false;
-
-                            player.play('true.wav');
-                          } else {
-                            setState(() {
-                              score -= 5;
-                              item.accepting = false;
-                              player.play('false.wav');
-                            });
-                          }
-                        },
-                        onWillAccept: (receivedItem) {
-                          setState(() {
-                            item.accepting = true;
-                          });
-                          return true;
-                        },
-                        onLeave: (receivedItem) {
-                          setState(() {
-                            item.accepting = false;
-                          });
-                        },
-                        builder: (context, acceptedItems, rejectedItems) =>
-                            Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: item.accepting
-                                      ? Colors.grey[400]
-                                      : Colors.grey[200],
-                                ),
-                                alignment: Alignment.center,
-                                height: MediaQuery.of(context).size.width / 6.5,
-                                width: MediaQuery.of(context).size.width / 3,
-                                margin: EdgeInsets.all(8),
-                                child: Text(
-                                  item.name,
-                                  style: Theme.of(context).textTheme.headline6,
-                                )),
-                      );
-                    }).toList(),
-                  ),
-                  // Spacer(),
-                ],
+      body: Column(
+        // crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            // mainAxisSize: MainAxisSize.max,
+            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            // crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                    onPressed: null,
+                    icon: Icon(Icons.swipe),
+                    label: Text(
+                      'Drag and Drop | Match Vocabulary',
+                      style: TextStyle(color: Colors.white),
+                    )),
               ),
             ],
-            // if (gameOver)
-            // Center(
-            //   child: Column(
-            //     // mainAxisAlignment: MainAxisAlignment.center,
-            //     // crossAxisAlignment: CrossAxisAlignment.center,
-            //     children: [
-            //       Text(
-            //         result(),
-            //         textAlign: TextAlign.center,
-            //         style: Theme.of(context).textTheme.headline3,
-            //       ),
-            //       ElevatedButton.icon(
-            //           onPressed: () {
-            //             setState(() {
-            //               initGame();
-            //             });
-            //           },
-            //           icon: Icon(Icons.refresh),
-            //           label: Text(
-            //             'New Game',
-            //             style: TextStyle(color: Colors.white),
-            //           ))
-            //     ],
-            //   ),
-            // ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: ListView(
+              // padding: EdgeInsets.all(8),
+              // mainAxisAlignment: MainAxisAlignment.center,
+              // crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (!gameOver) ...[
+                  Row(
+                    children: [
+                      // Spacer(),
+                      Column(
+                        children: items.map((item) {
+                          return Container(
+                            height: MediaQuery.of(context).size.width / 6.5,
+                            width: MediaQuery.of(context).size.width / 3,
+                            margin: EdgeInsets.all(8),
+                            child: Draggable<ItemModel>(
+                              data: item,
+                              childWhenDragging: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                backgroundImage: AssetImage(item.img),
+
+                                // radius: 50,
+                              ),
+                              feedback: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                backgroundImage: AssetImage(item.img),
+                                // radius: 30,
+                              ),
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                // backgroundImage: AssetImage(item.img),
+                                child: ClipOval(
+                                  child: Image.asset(
+                                    item.img,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                // radius: 100,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      Spacer(flex: 3),
+                      Column(
+                        children: items2.map((item) {
+                          return DragTarget<ItemModel>(
+                            onAccept: (receivedItem) {
+                              if (item.value == receivedItem.value) {
+                                score += 10;
+                                setState(() {
+                                  items.remove(receivedItem);
+                                  items2.remove(item);
+
+                                  if (items.isEmpty && items2.isEmpty) {
+                                    initGame();
+                                    _showDialog('hello', null, 'gg');
+                                  }
+                                });
+                                item.accepting = false;
+
+                                player.play('true.wav');
+                              } else {
+                                setState(() {
+                                  score -= 5;
+                                  item.accepting = false;
+                                  player.play('false.wav');
+                                });
+                              }
+                            },
+                            onWillAccept: (receivedItem) {
+                              setState(() {
+                                item.accepting = true;
+                              });
+                              return true;
+                            },
+                            onLeave: (receivedItem) {
+                              setState(() {
+                                item.accepting = false;
+                              });
+                            },
+                            builder: (context, acceptedItems, rejectedItems) =>
+                                Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: item.accepting
+                                          ? Colors.grey[400]
+                                          : Colors.grey[200],
+                                    ),
+                                    alignment: Alignment.center,
+                                    height:
+                                        MediaQuery.of(context).size.width / 6.5,
+                                    width:
+                                        MediaQuery.of(context).size.width / 3,
+                                    margin: EdgeInsets.all(8),
+                                    child: Text(
+                                      item.name,
+                                      style:
+                                          Theme.of(context).textTheme.headline6,
+                                    )),
+                          );
+                        }).toList(),
+                      ),
+                      Spacer(),
+                    ],
+                  ),
+                ],
+                // if (gameOver)
+                // Center(
+                //   child: Column(
+                //     // mainAxisAlignment: MainAxisAlignment.center,
+                //     // crossAxisAlignment: CrossAxisAlignment.center,
+                //     children: [
+                //       Text(
+                //         result(),
+                //         textAlign: TextAlign.center,
+                //         style: Theme.of(context).textTheme.headline3,
+                //       ),
+                //       ElevatedButton.icon(
+                //           onPressed: () {
+                //             setState(() {
+                //               initGame();
+                //             });
+                //           },
+                //           icon: Icon(Icons.refresh),
+                //           label: Text(
+                //             'New Game',
+                //             style: TextStyle(color: Colors.white),
+                //           ))
+                //     ],
+                //   ),
+                // ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
