@@ -11,17 +11,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var player = AudioCache(prefix: "assets/audio/");
+  final AudioCache player = AudioCache(prefix: "assets/audio/");
   late List<ItemModel> items;
   late List<ItemModel> items2;
   late int score;
+  late int fullScore;
   late bool gameOver;
   late String appBarText;
 
-  initGame() {
-    // gameOver = false;
+  initGameState() {
     score = 0;
-    appBarText = '';
+    appBarText = 'VocaMatch';
     items = [
       ItemModel(value: 'lion', name: 'Lion', img: 'assets/images/lion.png'),
       ItemModel(value: 'panda', name: 'Panda', img: 'assets/images/panda.png'),
@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
       ItemModel(value: 'cow', name: 'Cow', img: 'assets/images/cow.png'),
     ];
     items2 = List<ItemModel>.from(items);
-
+    fullScore = items.length * 10;
     items.shuffle();
     items2.shuffle();
   }
@@ -43,19 +43,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    initGame();
+    initGameState();
   }
 
   @override
   Widget build(BuildContext context) {
     // Pre-conditions before retun widgets
     gameOver = items.isEmpty;
-    appBarText = score != 0
-        ? 'Score: $score'
-        : gameOver
-            ? 'Game Over'
-            : 'VocaMatch';
-
     return Scaffold(
       appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -66,18 +60,14 @@ class _HomePageState extends State<HomePage> {
                   .headline4!
                   .copyWith(color: Colors.white70))),
       body: Column(
-        // crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Row(
-            // mainAxisSize: MainAxisSize.max,
-            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            // crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 child: ElevatedButton.icon(
                     onPressed: null,
-                    icon: Icon(Icons.swipe),
-                    label: Text(
+                    icon: const Icon(Icons.swipe),
+                    label: const Text(
                       'Drag and Drop | Match Vocabulary',
                       style: TextStyle(color: Colors.white),
                     )),
@@ -86,137 +76,109 @@ class _HomePageState extends State<HomePage> {
           ),
           Expanded(
             child: ListView(
-              // padding: EdgeInsets.all(8),
-              // mainAxisAlignment: MainAxisAlignment.center,
-              // crossAxisAlignment: CrossAxisAlignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
               children: [
                 if (!gameOver) ...[
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Spacer(),
                       Column(
                         children: items.map((item) {
                           return Container(
-                            height: MediaQuery.of(context).size.width / 6.5,
-                            width: MediaQuery.of(context).size.width / 3,
-                            margin: EdgeInsets.all(8),
+                            margin: const EdgeInsets.all(8),
                             child: Draggable<ItemModel>(
                               data: item,
                               childWhenDragging: CircleAvatar(
                                 backgroundColor: Colors.white,
-                                backgroundImage: AssetImage(item.img),
-
-                                // radius: 50,
-                              ),
-                              feedback: CircleAvatar(
-                                backgroundColor: Colors.white,
-                                backgroundImage: AssetImage(item.img),
-                                // radius: 30,
-                              ),
-                              child: CircleAvatar(
-                                backgroundColor: Colors.white,
-                                // backgroundImage: AssetImage(item.img),
                                 child: ClipOval(
                                   child: Image.asset(
                                     item.img,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
-                                // radius: 100,
+                                radius: MediaQuery.of(context).size.width *
+                                    0.076 *
+                                    1.75,
+                              ),
+                              feedback: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                child: ClipOval(
+                                  child: Image.asset(
+                                    item.img,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                radius:
+                                    MediaQuery.of(context).size.width * 0.0775,
+                              ),
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                child: ClipOval(
+                                  child: Image.asset(
+                                    item.img,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                radius:
+                                    MediaQuery.of(context).size.width * 0.0775,
                               ),
                             ),
                           );
-                        }).toList(),
+                        }).toList(growable: false),
                       ),
-                      Spacer(flex: 3),
                       Column(
                         children: items2.map((item) {
                           return DragTarget<ItemModel>(
                             onAccept: (receivedItem) {
                               if (item.value == receivedItem.value) {
-                                score += 10;
-                                setState(() {
-                                  items.remove(receivedItem);
-                                  items2.remove(item);
-
-                                  if (items.isEmpty && items2.isEmpty) {
-                                    initGame();
-                                    _showDialog('hello', null, 'gg');
-                                  }
-                                });
                                 item.accepting = false;
-
                                 player.play('true.wav');
+                                items.remove(receivedItem);
+                                items2.remove(item);
+                                setState(() => score += 10);
+                                if (items.isEmpty) {
+                                  _showDialog(
+                                    title: '📣 Game Over 📣',
+                                    subtitle: generateResult(),
+                                  );
+                                }
                               } else {
-                                setState(() {
-                                  score -= 5;
-                                  item.accepting = false;
-                                  player.play('false.wav');
-                                });
+                                item.accepting = false;
+                                player.play('false.wav');
+                                setState(() => score -= 5);
                               }
+                              appBarText = 'Score: $score/$fullScore';
                             },
                             onWillAccept: (receivedItem) {
-                              setState(() {
-                                item.accepting = true;
-                              });
+                              setState(() => item.accepting = true);
                               return true;
                             },
                             onLeave: (receivedItem) {
-                              setState(() {
-                                item.accepting = false;
-                              });
+                              setState(() => item.accepting = false);
                             },
-                            builder: (context, acceptedItems, rejectedItems) =>
-                                Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: item.accepting
-                                          ? Colors.grey[400]
-                                          : Colors.grey[200],
-                                    ),
-                                    alignment: Alignment.center,
-                                    height:
-                                        MediaQuery.of(context).size.width / 6.5,
-                                    width:
-                                        MediaQuery.of(context).size.width / 3,
-                                    margin: EdgeInsets.all(8),
-                                    child: Text(
-                                      item.name,
-                                      style:
-                                          Theme.of(context).textTheme.headline6,
-                                    )),
+                            builder: (context, acceptedItems, rejectedItems) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: item.accepting
+                                      ? Colors.grey[400]
+                                      : Colors.grey[200],
+                                ),
+                                alignment: Alignment.center,
+                                height: MediaQuery.of(context).size.width / 6.5,
+                                width: MediaQuery.of(context).size.width / 3,
+                                margin: EdgeInsets.all(8),
+                                child: Text(item.name,
+                                    style:
+                                        Theme.of(context).textTheme.headline6),
+                              );
+                            },
                           );
-                        }).toList(),
+                        }).toList(growable: false),
                       ),
-                      Spacer(),
                     ],
                   ),
                 ],
-                // if (gameOver)
-                // Center(
-                //   child: Column(
-                //     // mainAxisAlignment: MainAxisAlignment.center,
-                //     // crossAxisAlignment: CrossAxisAlignment.center,
-                //     children: [
-                //       Text(
-                //         result(),
-                //         textAlign: TextAlign.center,
-                //         style: Theme.of(context).textTheme.headline3,
-                //       ),
-                //       ElevatedButton.icon(
-                //           onPressed: () {
-                //             setState(() {
-                //               initGame();
-                //             });
-                //           },
-                //           icon: Icon(Icons.refresh),
-                //           label: Text(
-                //             'New Game',
-                //             style: TextStyle(color: Colors.white),
-                //           ))
-                //     ],
-                //   ),
-                // ),
               ],
             ),
           ),
@@ -225,76 +187,62 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  //Functions:
-
-  String result() {
-    if (score == 100) {
+  //Methods:
+  String generateResult() {
+    if (score == fullScore) {
       player.play('success.wav');
       return 'Awesome!';
     } else {
       player.play('try_again.wav');
-      return 'Play again to get better score';
+      return 'Try again';
     }
   }
 
-  void _showDialog([String? title, String? image, String? name]) {
+  void _showDialog({required String title, required String subtitle}) {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
-              // elevation: 15,
-              backgroundColor:
-                  Theme.of(context).scaffoldBackgroundColor.withOpacity(0.75),
-              title: Column(
-                children: [
-                  Text(
-                    title!,
-                    style: const TextStyle(
-                      fontSize: 25,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 5),
-                  CustomDivider(),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (image != null)
-                    Image.asset(
-                      image,
-                      // fit: BoxFit.scaleDown,
-                      // height: 150,
-                      // width: 150,
-                    ),
-                  Text(
-                    name!,
-                    style: const TextStyle(
-                        fontSize: 32, fontWeight: FontWeight.w500),
-                  )
-                ],
-              ),
-              actions: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey, width: 1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Text('OK', style: TextStyle(fontSize: 18)),
-                  ),
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          backgroundColor:
+              Theme.of(context).scaffoldBackgroundColor.withOpacity(0.90),
+          title: Column(
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 25,
                 ),
-              ]
-              // ),
-              );
-        });
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 5),
+              CustomDivider(),
+            ],
+          ),
+          content: Text(subtitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headline3),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+                setState(() => initGameState());
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey, width: 1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text('OK', style: TextStyle(fontSize: 18)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
