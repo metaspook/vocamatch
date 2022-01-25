@@ -23,18 +23,31 @@ class _HomePageState extends State<HomePage> {
     score = 0;
     appBarText = 'VocaMatch';
     items = [
-      ItemModel(value: 'lion', name: 'Lion', img: 'assets/images/lion.png'),
-      ItemModel(value: 'panda', name: 'Panda', img: 'assets/images/panda.png'),
-      ItemModel(value: 'camel', name: 'Camel', img: 'assets/images/camel.png'),
-      ItemModel(value: 'dog', name: 'Dog', img: 'assets/images/dog.png'),
-      ItemModel(value: 'cat', name: 'Cat', img: 'assets/images/cat.png'),
-      ItemModel(value: 'horse', name: 'Horse', img: 'assets/images/horse.png'),
-      ItemModel(value: 'sheep', name: 'Sheep', img: 'assets/images/sheep.png'),
-      ItemModel(value: 'hen', name: 'Hen', img: 'assets/images/hen.png'),
-      ItemModel(value: 'fox', name: 'Fox', img: 'assets/images/fox.png'),
-      ItemModel(value: 'cow', name: 'Cow', img: 'assets/images/cow.png'),
+      for (String i in <String>[
+        'bicycle',
+        'bus',
+        'camel',
+        'cow',
+        'eagle',
+        'fox',
+        'hen',
+        'horse',
+        'kingfisher',
+        'lion',
+        'orange',
+        'panda',
+        'pigeon',
+        'pineapple',
+        'scooter',
+        'sheep',
+        'strawberry',
+        'taxi',
+        'watermelon',
+        'woodpecker'
+      ])
+        ItemModel(value: i, name: i.toCapitalize(), img: 'assets/images/$i.png')
     ];
-    items2 = List<ItemModel>.from(items);
+    items2 = [...items];
     fullScore = items.length * 10;
     items.shuffle();
     items2.shuffle();
@@ -61,22 +74,35 @@ class _HomePageState extends State<HomePage> {
                   .copyWith(color: Colors.white70))),
       body: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                    onPressed: null,
-                    icon: const Icon(Icons.swipe),
-                    label: const Text(
-                      'Drag and Drop | Match Vocabulary',
-                      style: TextStyle(color: Colors.white),
-                    )),
-              ),
-            ],
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20)),
+              color: Colors.pink.withOpacity(0.5),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.swipe,
+                  color: Colors.white70,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'Drag and Drop | Match Vocabulary',
+                  style: Theme.of(context)
+                      .textTheme
+                      .subtitle2!
+                      .copyWith(color: Colors.white70),
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
               children: [
                 if (!gameOver) ...[
                   Row(
@@ -167,10 +193,14 @@ class _HomePageState extends State<HomePage> {
                                 alignment: Alignment.center,
                                 height: MediaQuery.of(context).size.width / 6.5,
                                 width: MediaQuery.of(context).size.width / 3,
-                                margin: EdgeInsets.all(8),
+                                margin: const EdgeInsets.all(8),
                                 child: Text(item.name,
-                                    style:
-                                        Theme.of(context).textTheme.headline6),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline6!
+                                        .copyWith(
+                                            color: Colors.black
+                                                .withOpacity(0.60))),
                               );
                             },
                           );
@@ -245,4 +275,9 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+}
+
+extension StringExtension on String {
+  String toCapitalize() =>
+      "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
 }
