@@ -1,16 +1,20 @@
-# vocamatch
+# VocaMatch
+An educational vocabulary matching 🕹️ game.
 
-A new Flutter project.
+><b>Platforms:</b> Android, iOS, Web<br><b>Language/SDK:</b> Dart, Flutter
 
-## Getting Started
+## **🎈 Screenshot**
+<img alt="&nbsp;Missing screenshot!" src="screenshots/screenshot_00.gif" width="204" height="430"><br>
 
-This project is a starting point for a Flutter application.
+## **🎈 How to play?**
+* Drag pictures and Drop over the correct words.
+* Correct answers will add 10 points to your score.
+* Wrong answers will deduct 5 points from your score.
 
-A few resources to get you started if this is your first Flutter project:
+## **🎈 Remarks**
+<details><summary>Click to collapse/fold.</summary>
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+* Packages: audioplayers
+* Inspiration: https://youtu.be/EAYjbQXXmrc
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+</details>
